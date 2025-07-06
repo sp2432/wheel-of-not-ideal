@@ -94,8 +94,8 @@ const Wheel: React.FC<WheelProps> = ({ items, rotation, isSpinning, onSpinClick 
       </div>
 
       {/* Pointer */}
-      <div className="absolute right-[-4%] top-1/2 -translate-y-1/2 z-10" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}>
-         <div className="w-0 h-0 border-t-[2.5vmin] border-t-transparent border-b-[2.5vmin] border-b-transparent border-l-[4vmin] border-l-red-600 md:border-t-[20px] md:border-b-[20px] md:border-l-[30px]"></div>
+      <div className="absolute top-[-2%] left-1/2 -translate-x-1/2 z-10" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}>
+         <div className="w-0 h-0 border-l-[2.5vmin] border-l-transparent border-r-[2.5vmin] border-r-transparent border-t-[4vmin] border-t-red-600 md:border-l-[20px] md:border-r-[20px] md:border-t-[30px]"></div>
       </div>
       
       {/* Spin Button */}
