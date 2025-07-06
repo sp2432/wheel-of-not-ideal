@@ -61,7 +61,7 @@ const Wheel: React.FC<WheelProps> = ({ items, rotation, isSpinning, onSpinClick 
   const canSpin = items.length >= 2;
 
   return (
-    <div className="relative w-[500px] h-[500px] flex items-center justify-center">
+    <div className="relative flex items-center justify-center w-[90vw] aspect-square landscape:w-auto landscape:h-[80vh] max-w-[500px] max-h-[500px]">
       <div 
         className="absolute w-full h-full rounded-full shadow-2xl"
         style={{
@@ -69,7 +69,7 @@ const Wheel: React.FC<WheelProps> = ({ items, rotation, isSpinning, onSpinClick 
           transition: isSpinning ? 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
         }}
       >
-        <svg viewBox="0 0 500 500" transform="rotate(-90)">
+        <svg viewBox="0 0 500 500" transform="rotate(-90)" className="w-full h-full">
           <g>
             {sectors.map((sector, index) => (
               <g key={index}>
@@ -94,15 +94,15 @@ const Wheel: React.FC<WheelProps> = ({ items, rotation, isSpinning, onSpinClick 
       </div>
 
       {/* Pointer */}
-      <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 z-10" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}>
-         <div className="w-0 h-0 border-t-[20px] border-t-transparent border-b-[20px] border-b-transparent border-l-[30px] border-l-red-600"></div>
+      <div className="absolute right-[-4%] top-1/2 -translate-y-1/2 z-10" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}>
+         <div className="w-0 h-0 border-t-[2.5vmin] border-t-transparent border-b-[2.5vmin] border-b-transparent border-l-[4vmin] border-l-red-600 md:border-t-[20px] md:border-b-[20px] md:border-l-[30px]"></div>
       </div>
       
       {/* Spin Button */}
       <button
         onClick={onSpinClick}
         disabled={isSpinning || !canSpin}
-        className="absolute w-32 h-32 rounded-full bg-white border-8 border-gray-300 flex items-center justify-center text-center text-2xl font-bold text-gray-800 z-10 cursor-pointer transition-transform transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:scale-100"
+        className="absolute w-1/4 h-1/4 rounded-full bg-white border-[1.5vmin] md:border-8 border-gray-300 flex items-center justify-center text-center text-[3.5vmin] md:text-2xl font-bold text-gray-800 z-10 cursor-pointer transition-transform transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:scale-100"
       >
         {canSpin ? (isSpinning ? "..." : "SPIN") : "Add Items"}
       </button>

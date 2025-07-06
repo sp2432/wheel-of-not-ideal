@@ -1,5 +1,5 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import Wheel from './components/Wheel';
 import Controls from './components/Controls';
 import ResultModal from './components/ResultModal';
@@ -9,34 +9,51 @@ const INITIAL_ITEMS = [
   "7 Iron", "8 Iron", "9 Iron", "Wedge", "Sand Wedge", "Gap Wedge", "Putter"
 ];
 
+interface Selection {
+  item: string;
+  wasRemoved: boolean;
+}
+
 const App: React.FC = () => {
-  const [items, setItems] = useState<string[]>(INITIAL_ITEMS);
-  const [removedItems, setRemovedItems] = useState<string[]>([]);
+  const [items, setItems] = useState<string[]>(() => {
+    try {
+      const savedItems = localStorage.getItem('wheel-of-not-ideal-items');
+      return savedItems ? JSON.parse(savedItems) : INITIAL_ITEMS;
+    } catch (error) {
+      console.error("Could not parse items from localStorage", error);
+      return INITIAL_ITEMS;
+    }
+  });
+
+  const [selectionHistory, setSelectionHistory] = useState<Selection[]>(() => {
+    try {
+      const savedHistory = localStorage.getItem('wheel-of-not-ideal-history');
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    } catch (error) {
+      console.error("Could not parse history from localStorage", error);
+      return [];
+    }
+  });
+
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [winner, setWinner] = useState<string | null>(null);
   const [rotation, setRotation] = useState<number>(0);
   const [newItem, setNewItem] = useState<string>('');
+  const [keepItemsOnWheel, setKeepItemsOnWheel] = useState<boolean>(false);
   
+  useEffect(() => {
+    localStorage.setItem('wheel-of-not-ideal-items', JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('wheel-of-not-ideal-history', JSON.stringify(selectionHistory));
+  }, [selectionHistory]);
+
   const handleAddItem = () => {
     const itemsToAdd = newItem
       .split(',')
       .map(item => item.trim())
-      .filter(item => item)
-      .flatMap(entry => {
-        const multiplierRegex = /^(.*?)\s*\*\s*(\d+)$/;
-        const match = entry.match(multiplierRegex);
-        
-        if (match) {
-          const name = match[1].trim();
-          const count = parseInt(match[2], 10);
-          
-          if (name && !isNaN(count) && count > 0) {
-            return Array(count).fill(name);
-          }
-        }
-        
-        return [entry];
-      });
+      .filter(item => item); // filter out empty strings
 
     if (itemsToAdd.length > 0) {
       setItems(prevItems => [...prevItems, ...itemsToAdd]);
@@ -46,12 +63,12 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     setItems(INITIAL_ITEMS);
-    setRemovedItems([]);
+    setSelectionHistory([]);
   };
 
   const handleClearAll = () => {
     setItems([]);
-    setRemovedItems([]);
+    setSelectionHistory([]);
   };
   
   const handleSpinClick = useCallback(() => {
@@ -74,22 +91,24 @@ const App: React.FC = () => {
 
     setTimeout(() => {
       setWinner(winnerItem);
+      confetti({
+        particleCount: 150,
+        spread: 90,
+        origin: { y: 0.6 }
+      });
     }, 5000); // Corresponds to animation duration in Wheel.tsx
   }, [isSpinning, items, rotation]);
 
-  const closeModalAndRemoveItem = () => {
+  const closeModalAndHandleResult = () => {
     if (!winner) return;
-    
-    setItems(prevItems => {
-      const indexToRemove = prevItems.indexOf(winner);
-      if (indexToRemove > -1) {
-        // Create a new array by slicing around the index to remove just one item
-        return [...prevItems.slice(0, indexToRemove), ...prevItems.slice(indexToRemove + 1)];
-      }
-      return prevItems; // Should not happen if winner is valid, but good for safety
-    });
 
-    setRemovedItems(prev => [...prev, winner]);
+    const wasRemoved = !keepItemsOnWheel;
+    setSelectionHistory(prev => [...prev, { item: winner, wasRemoved }]);
+
+    if (wasRemoved) {
+      setItems(prev => prev.filter(item => item !== winner));
+    }
+    
     setWinner(null);
     setIsSpinning(false);
   };
@@ -103,8 +122,8 @@ const App: React.FC = () => {
         <p className="text-gray-400 mt-2">Spin the wheel, embrace the chaos.</p>
       </header>
       
-      <main className="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-7xl">
-        <div className="w-full lg:w-1/2 flex justify-center items-center">
+      <main className="flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-7xl">
+        <div className="w-full md:w-1/2 flex justify-center items-center">
           <Wheel 
             items={items}
             rotation={rotation}
@@ -112,19 +131,21 @@ const App: React.FC = () => {
             onSpinClick={handleSpinClick}
           />
         </div>
-        <div className="w-full lg:w-1/3">
+        <div className="w-full md:w-1/2 lg:w-1/3">
            <Controls 
             newItem={newItem}
             onNewItemChange={(e) => setNewItem(e.target.value)}
             onAddItem={handleAddItem}
-            removedItems={removedItems}
+            selectionHistory={selectionHistory}
             onReset={handleReset}
             onClearAll={handleClearAll}
+            keepItemsOnWheel={keepItemsOnWheel}
+            onKeepItemsChange={(e) => setKeepItemsOnWheel(e.target.checked)}
           />
         </div>
       </main>
 
-      <ResultModal winner={winner} onClose={closeModalAndRemoveItem} />
+      <ResultModal winner={winner} onClose={closeModalAndHandleResult} />
     </div>
   );
 };

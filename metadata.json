@@ -1,5 +1,6 @@
 {
   "name": "Wheel of Not Ideal",
   "description": "A dynamic spinning wheel where you can add your own options. When an option is selected, it's removed from the wheel, and the remaining options expand to fill the space. Spin the wheel to randomly select an item and see what fate decides for you!",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

@@ -1,16 +1,26 @@
 
 import React from 'react';
 
+interface Selection {
+  item: string;
+  wasRemoved: boolean;
+}
+
 interface ControlsProps {
   newItem: string;
   onNewItemChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAddItem: () => void;
-  removedItems: string[];
+  selectionHistory: Selection[];
   onReset: () => void;
   onClearAll: () => void;
+  keepItemsOnWheel: boolean;
+  onKeepItemsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ newItem, onNewItemChange, onAddItem, removedItems, onReset, onClearAll }) => {
+const Controls: React.FC<ControlsProps> = ({ 
+  newItem, onNewItemChange, onAddItem, selectionHistory, onReset, onClearAll,
+  keepItemsOnWheel, onKeepItemsChange
+}) => {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       onAddItem();
@@ -27,7 +37,7 @@ const Controls: React.FC<ControlsProps> = ({ newItem, onNewItemChange, onAddItem
             value={newItem}
             onChange={onNewItemChange}
             onKeyPress={handleKeyPress}
-            placeholder="Add items (e.g. Beer, Vodka*3, Rum)"
+            placeholder="Add an item, or items via comma..."
             className="flex-grow bg-gray-700 text-white placeholder-gray-500 rounded-md p-3 border-2 border-gray-600 focus:border-purple-500 focus:outline-none transition-colors"
           />
           <button
@@ -39,15 +49,31 @@ const Controls: React.FC<ControlsProps> = ({ newItem, onNewItemChange, onAddItem
           </button>
         </div>
       </div>
+
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          id="keep-items-checkbox"
+          checked={keepItemsOnWheel}
+          onChange={onKeepItemsChange}
+          className="h-5 w-5 cursor-pointer rounded border-gray-500 bg-gray-900 text-purple-600 focus:ring-purple-500 focus:ring-offset-gray-800"
+        />
+        <label htmlFor="keep-items-checkbox" className="text-gray-300 select-none cursor-pointer">
+          Don't remove item after selection
+        </label>
+      </div>
       
-      {removedItems.length > 0 && (
+      {selectionHistory.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold mb-3 text-pink-300">Selected Items</h3>
+          <h3 className="text-xl font-semibold mb-3 text-pink-300">Selection History</h3>
           <div className="bg-gray-700 p-3 rounded-md max-h-48 overflow-y-auto">
             <ul className="space-y-2">
-              {removedItems.map((item, index) => (
-                <li key={index} className="text-gray-400 line-through">
-                  {item}
+              {selectionHistory.map((selection, index) => (
+                <li 
+                  key={index} 
+                  className={selection.wasRemoved ? "text-gray-400 line-through" : "text-gray-200"}
+                >
+                  {selection.item}
                 </li>
               ))}
             </ul>
@@ -58,16 +84,14 @@ const Controls: React.FC<ControlsProps> = ({ newItem, onNewItemChange, onAddItem
       <div className="flex flex-col sm:flex-row gap-2">
         <button
             onClick={onReset}
-            className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-md transition-colors"
-          >
-            Reset Wheel
-          </button>
+            className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-md transition-colors">
+            Reset
+        </button>
         <button
             onClick={onClearAll}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition-colors"
-          >
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition-colors">
             Clear All
-          </button>
+        </button>
       </div>
     </div>
   );
