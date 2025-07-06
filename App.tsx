@@ -122,8 +122,8 @@ const App: React.FC = () => {
         <p className="text-gray-400 mt-2">Spin the wheel, embrace the chaos.</p>
       </header>
       
-      <main className="flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-7xl">
-        <div className="w-full md:w-1/2 flex justify-center items-center">
+      <main className="flex flex-col items-center justify-center gap-8 w-full max-w-4xl">
+        <div className="w-full flex justify-center items-center">
           <Wheel 
             items={items}
             rotation={rotation}
@@ -131,7 +131,7 @@ const App: React.FC = () => {
             onSpinClick={handleSpinClick}
           />
         </div>
-        <div className="w-full md:w-1/2 lg:w-1/3">
+        <div className="w-full max-w-md">
            <Controls 
             newItem={newItem}
             onNewItemChange={(e) => setNewItem(e.target.value)}
