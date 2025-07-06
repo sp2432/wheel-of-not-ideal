@@ -1,0 +1,1 @@
+Added checkbox to retain items on the wheel
